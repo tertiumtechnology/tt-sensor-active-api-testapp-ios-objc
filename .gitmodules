@@ -1,0 +1,4 @@
+[submodule "tt-sensor-active-api-lib-ios-objc"]
+	path = tt-sensor-active-api-lib-ios-objc
+	url = https://github.com/tertiumtechnology/tt-sensor-active-api-lib-ios-objc
+	branch = master
