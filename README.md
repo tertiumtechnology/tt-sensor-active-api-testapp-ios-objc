@@ -1,5 +1,5 @@
-# tt-sensor-active-api-testapp-ios-swift
-iOS Swift demo application for Tertium active rfid devices API.
+# tt-sensor-active-api-testapp-ios-objc
+iOS Objective-C demo application for Tertium active rfid devices API.
 
 ## License
 The test application and the libraries are released under the MIT license. Please see the `LICENSE` file.
@@ -12,9 +12,9 @@ To download full source code for the demo application and the libraries follow t
 
 - Open a terminal window
 - Change current directory to any Xcode source directory you have (f.e. Desktop/coding/)
-- type: ```git clone https://github.com/tertiumtechnology/tt-sensor-active-api-testapp-ios-swift --recurse-submodules ```
+- type: ```git clone https://github.com/tertiumtechnology/tt-sensor-active-api-testapp-ios-objc --recurse-submodules ```
 - Open Xcode
-- Search the directory where you downloaded the files and open the project ```tt-sensor-active-api-testapp-ios-swift/RfidActiveSensorApiTestappIosSwift.xcodeproj```
+- Search the directory where you downloaded the files and open the project ```tt-sensor-active-api-testapp-ios-swift/RfidActiveSensorApiTestappIosObjC.xcodeproj```
 - Select a connected iOS device as build device and press Run
 
 ## Troubleshooting
