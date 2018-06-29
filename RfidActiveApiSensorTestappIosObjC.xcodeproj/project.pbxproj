@@ -13,7 +13,43 @@
 		7B2C41FB20E64F4D00AB0F5A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7B2C41FA20E64F4D00AB0F5A /* Assets.xcassets */; };
 		7B2C41FE20E64F4D00AB0F5A /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 7B2C41FC20E64F4D00AB0F5A /* LaunchScreen.storyboard */; };
 		7B2C420120E64F4D00AB0F5A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B2C420020E64F4D00AB0F5A /* main.m */; };
+		7BB4D7A720E659F1006EE563 /* RfidActiveSensorApiLibObjC.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7BB4D77820E656FE006EE563 /* RfidActiveSensorApiLibObjC.framework */; };
+		7BB4D7A820E659F1006EE563 /* RfidActiveSensorApiLibObjC.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 7BB4D77820E656FE006EE563 /* RfidActiveSensorApiLibObjC.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		7BB4D7AD20E659F3006EE563 /* TxRxLib.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7BB4D7AC20E659F3006EE563 /* TxRxLib.framework */; };
+		7BB4D7AE20E659F3006EE563 /* TxRxLib.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 7BB4D7AC20E659F3006EE563 /* TxRxLib.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		7BB4D77720E656FE006EE563 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 7BB4D77220E656FD006EE563 /* RfidActiveSensorApiLibObjC.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 7B2C421120E650AC00AB0F5A;
+			remoteInfo = RfidActiveSensorApiLibObjC;
+		};
+		7BB4D7A920E659F1006EE563 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 7BB4D77220E656FD006EE563 /* RfidActiveSensorApiLibObjC.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 7B2C421020E650AC00AB0F5A;
+			remoteInfo = RfidActiveSensorApiLibObjC;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		7BB4D7AB20E659F1006EE563 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				7BB4D7AE20E659F3006EE563 /* TxRxLib.framework in Embed Frameworks */,
+				7BB4D7A820E659F1006EE563 /* RfidActiveSensorApiLibObjC.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		7B2C41EE20E64F4A00AB0F5A /* RfidActiveApiSensorTestappIosObjC.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RfidActiveApiSensorTestappIosObjC.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -26,6 +62,8 @@
 		7B2C41FD20E64F4D00AB0F5A /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		7B2C41FF20E64F4D00AB0F5A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		7B2C420020E64F4D00AB0F5A /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		7BB4D77220E656FD006EE563 /* RfidActiveSensorApiLibObjC.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RfidActiveSensorApiLibObjC.xcodeproj; path = "tt-sensor-active-api-lib-ios-objc/RfidActiveSensorApiLibObjC.xcodeproj"; sourceTree = "<group>"; };
+		7BB4D7AC20E659F3006EE563 /* TxRxLib.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = TxRxLib.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -33,6 +71,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7BB4D7AD20E659F3006EE563 /* TxRxLib.framework in Frameworks */,
+				7BB4D7A720E659F1006EE563 /* RfidActiveSensorApiLibObjC.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -42,6 +82,8 @@
 		7B2C41E520E64F4A00AB0F5A = {
 			isa = PBXGroup;
 			children = (
+				7BB4D7AC20E659F3006EE563 /* TxRxLib.framework */,
+				7BB4D77220E656FD006EE563 /* RfidActiveSensorApiLibObjC.xcodeproj */,
 				7B2C41F020E64F4A00AB0F5A /* RfidActiveApiSensorTestappIosObjC */,
 				7B2C41EF20E64F4A00AB0F5A /* Products */,
 			);
@@ -71,6 +113,14 @@
 			path = RfidActiveApiSensorTestappIosObjC;
 			sourceTree = "<group>";
 		};
+		7BB4D77320E656FD006EE563 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				7BB4D77820E656FE006EE563 /* RfidActiveSensorApiLibObjC.framework */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -81,10 +131,12 @@
 				7B2C41EA20E64F4A00AB0F5A /* Sources */,
 				7B2C41EB20E64F4A00AB0F5A /* Frameworks */,
 				7B2C41EC20E64F4A00AB0F5A /* Resources */,
+				7BB4D7AB20E659F1006EE563 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				7BB4D7AA20E659F1006EE563 /* PBXTargetDependency */,
 			);
 			name = RfidActiveApiSensorTestappIosObjC;
 			productName = RfidActiveApiSensorTestappIosObjC;
@@ -116,12 +168,28 @@
 			mainGroup = 7B2C41E520E64F4A00AB0F5A;
 			productRefGroup = 7B2C41EF20E64F4A00AB0F5A /* Products */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = 7BB4D77320E656FD006EE563 /* Products */;
+					ProjectRef = 7BB4D77220E656FD006EE563 /* RfidActiveSensorApiLibObjC.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				7B2C41ED20E64F4A00AB0F5A /* RfidActiveApiSensorTestappIosObjC */,
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		7BB4D77820E656FE006EE563 /* RfidActiveSensorApiLibObjC.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = RfidActiveSensorApiLibObjC.framework;
+			remoteRef = 7BB4D77720E656FE006EE563 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
 		7B2C41EC20E64F4A00AB0F5A /* Resources */ = {
@@ -148,6 +216,14 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		7BB4D7AA20E659F1006EE563 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = RfidActiveSensorApiLibObjC;
+			targetProxy = 7BB4D7A920E659F1006EE563 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
 		7B2C41F720E64F4A00AB0F5A /* Main.storyboard */ = {
