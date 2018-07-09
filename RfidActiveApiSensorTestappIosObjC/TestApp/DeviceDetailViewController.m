@@ -697,6 +697,52 @@ static NSString* const operations[] = {
     [self enableStartButton: false];
     _connected = false;
     [_btnConnect setTitle: @"CONNECT" forState: UIControlStateNormal];
+    [_sensors removeAllObjects];
+    [_pikSelectSensor reloadAllComponents];
+    _activeSensor = nil;
+}
+
+
+-(void)firmwareVersionEvent: (int) major minor: (int) minor
+{
+    NSString *firmwareVersion;
+    
+    firmwareVersion = [NSString stringWithFormat: @"Firmware = %d.%d", major, minor];
+    [self appendTextToBuffer: firmwareVersion color: [UIColor whiteColor]];
+}
+
+-(void)getClockEvent:(int)sensorTime systemTime:(int)systemTime
+{
+    if (!_inMultiCommand) {
+        [self appendTextToBuffer: [NSString stringWithFormat: @"Sensor time: %ds, System time: %ds", sensorTime, systemTime] color: [UIColor whiteColor]];
+        [self enableStartButton: true];
+    } else {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self->_api setClock: systemTime+2 update_time: sensorTime+2];
+        });
+    }
+}
+
+- (void)getLoggedLocalizationDataEvent:(int)gpsError latitude:(float)latitude longitude:(float)longitude timestamp:(int)timestamp
+{
+    if (gpsError == ABSTRACT_SENSOR_LISTENER_NO_ERROR) {
+        [self appendTextToBuffer: [NSString stringWithFormat: @"Localization logged latitude/longitude: %f/%f@%d", latitude, longitude, timestamp] color: [UIColor whiteColor]];
+    } else {
+        [self appendTextToBuffer: [NSString stringWithFormat: @"Localization logged error: %d", gpsError] color: [UIColor redColor]];
+    }
+    [self enableStartButton: true];
+}
+
+- (void)getLoggedMeasureDataEvent:(int)sensorType sensorValue:(float)sensorValue timestamp:(int)timestamp
+{
+    [self appendTextToBuffer: [NSString stringWithFormat: @"Sensor %@ logged value: %f@%d", _commandSensorTypeName, sensorValue, timestamp] color: [UIColor whiteColor]];
+    [self enableStartButton: true];
+}
+
+- (void)getLoggedSealDataEvent:(bool)closed status:(int)status timestamp:(int)timestamp
+{
+    [self appendTextToBuffer: [NSString stringWithFormat: @"Seal logged closed status: %d and counter: %d@%d", closed, status, timestamp] color: [UIColor whiteColor]];
+    [self enableStartButton: true];
 }
 
 -(void)resultEvent: (int) command error: (int) error
@@ -718,173 +764,151 @@ static NSString* const operations[] = {
     });
 }
 
--(void)batteryStatusEvent: (int) status
+// AbstractResponseListenerProtocol
+- (void)calibrateSensorEvent:(int)sensorType error:(int)error
 {
-    _batteryStatus = status;
-    [self updateBatteryLabel];
-}
-
--(void)firmwareVersionEvent: (int) major minor: (int) minor
-{
-    NSString *firmwareVersion;
-    
-    firmwareVersion = [NSString stringWithFormat: @"Firmware = %d.%d", major, minor];
-    [self appendTextToBuffer: firmwareVersion color: [UIColor whiteColor]];
-}
-
--(void)shutdownTimeEvent: (int) time
-{
-    NSString *shutdownTime = [NSString stringWithFormat: @"Shutdown-time %d", time];
-    [self appendTextToBuffer: shutdownTime color: [UIColor whiteColor]];
-}
-
--(void)RFpowerEvent: (int) level mode: (int) mode
-{
-    NSString *shutdownTime = [NSString stringWithFormat: @"RF-power: level = %d, mode = %d", level, mode];
-    [self appendTextToBuffer: shutdownTime color: [UIColor whiteColor]];
-}
-
--(void)batteryLevelEvent: (float)level
-{
-    _batteryLevel = level;
-    [self updateBatteryLabel];
-}
-
--(void)RFforISO15693tunnelEvent: (int) delay timeout: (int) timeout
-{
-    NSString *rfForIsoEvent = [NSString stringWithFormat: @"RFforISO15693tunnel: delay = %d, timeout = %d", delay, timeout];
-    [self appendTextToBuffer: rfForIsoEvent color: [UIColor whiteColor]];
-}
-
--(void)ISO15693optionBitsEvent: (int) option_bits
-{
-    NSString *ISO15693optionBits = [NSString stringWithFormat: @"ISO15693optionBits: bits = %d", option_bits];
-    [self appendTextToBuffer: ISO15693optionBits color: [UIColor whiteColor]];
-}
-
--(void)ISO15693extensionFlagEvent: (bool) flag permanent: (bool) permanent
-{
-    NSString *ISO15693extensionFlag = [NSString stringWithFormat: @"ISO15693extensionFlag: flag = %@ permanent = %@", (flag == true? @"true":  @"false"), (permanent == true? @"true": @"false")];
-    [self appendTextToBuffer: ISO15693extensionFlag color: [UIColor whiteColor]];
-}
-
--(void)ISO15693bitrateEvent: (int) bitrate permanent: (bool) permanent
-{
-    NSString *ISO15693bitrate = [NSString stringWithFormat: @"ISO15693bitrate: bitrate = %d permanent = %@", bitrate, (permanent == true? @"true":  @"false")];
-    [self appendTextToBuffer: ISO15693bitrate color: [UIColor whiteColor]];
-}
-
--(void)EPCfrequencyEvent: (int) frequency
-{
-    NSString *EPCfrequency = [NSString stringWithFormat: @"EPCfrequency: frequency = %d", frequency];
-    [self appendTextToBuffer: EPCfrequency color: [UIColor whiteColor]];
-}
-
--(void)tunnelEvent: (NSData *_Nonnull) data
-{
-    NSString *tunnelEvent = [NSString stringWithFormat: @"tunnelEvent: data = %@", [PassiveReader dataToString: data]];
-    [self appendTextToBuffer: tunnelEvent color: [UIColor whiteColor]];
-}
-
-// AbstractInventoryListenerProtocol implementation
-- (void)inventoryEvent:(Tag * _Nonnull)tag
-{
-    [self enableStartButton: true];
-    [_tags addObject: tag];
-    [self appendTextToBuffer: [NSString stringWithFormat: @"inventoryEvent tag: %@", [tag toString]] color: [UIColor whiteColor]];
-}
-
-// AbstractResponseListenerProtocol implementation
-- (void)writeIDevent: (NSData *_Nonnull)tagID error:(int)error
-{
-    NSString *text;
+    if (error == ABSTRACT_SENSOR_LISTENER_NO_ERROR) {
+        [self appendTextToBuffer: [NSString stringWithFormat: @"Calibrate sensor %@ success", _commandSensorTypeName] color: [UIColor whiteColor]];
+    } else {
+        [self appendTextToBuffer: [NSString stringWithFormat: @"Calibrate sensor %@ error: %d", _commandSensorTypeName, error] color: [UIColor redColor]];
+    }
     
     [self enableStartButton: true];
-    text = [NSString stringWithFormat: @"writeIDevent tag: %@, error: %d", [PassiveReader dataToString: tagID], error];
-    [self appendTextToBuffer: text error: error];
 }
 
-- (void)writePasswordEvent:(NSData *_Nonnull)tagID error:(int)error
+- (void)getCalibrationConfigurationEvent:(int)sensorType error:(int)error uncalibratedRawValue:(int)uncalibratedRawValue valueOffset:(int)valueOffset valueGain:(float)valueGain fullScale:(int)fullScale
 {
-    NSString *text;
-    
+    if (error == ABSTRACT_SENSOR_LISTENER_NO_ERROR) {
+        [self appendTextToBuffer: [NSString stringWithFormat: @"Calibration configuration sensor %@ uncalibratedRawValue: %d valueOffset: %d valueGain: %f fullScale: %d", _commandSensorTypeName, uncalibratedRawValue, valueOffset, valueGain, fullScale] color: [UIColor whiteColor]];
+    } else {
+        [self appendTextToBuffer: [NSString stringWithFormat: @"Calibration configuration sensor %@ error: %d", _commandSensorTypeName, error] color: [UIColor redColor]];
+    }
+
     [self enableStartButton: true];
-    text = [NSString stringWithFormat: @"writePasswordEvent tag: %@, error: %d", [PassiveReader dataToString: tagID], error];
-    [self appendTextToBuffer: text error: error];
 }
 
-- (void)readTIDevent:(NSData *_Nonnull)tagID error:(int)error TID:(NSData *_Nullable)tid
+- (void)getLogConfigurationEvent:(int)sensorType error:(int)error logEnable:(bool)logEnable logPeriod:(int)logPeriod
 {
-    NSString *text;
-    
+    if (error == ABSTRACT_SENSOR_LISTENER_NO_ERROR) {
+        [self appendTextToBuffer: [NSString stringWithFormat: @"Log configuration sensor %@ enabled: %@ with period: %d", _commandSensorTypeName, (logEnable == true ? @"true": @"false"), logPeriod] color: [UIColor whiteColor]];
+    } else {
+        [self appendTextToBuffer: [NSString stringWithFormat: @"Log configuration sensor %@ error: %d", _commandSensorTypeName, error] color: [UIColor redColor]];
+    }
+
     [self enableStartButton: true];
-    text = [NSString stringWithFormat: @"readTIDevent tag: %@, error: %d, TID: %@", [PassiveReader dataToString: tagID], error, [PassiveReader dataToString: tid]];
-    [self appendTextToBuffer: text error: error];
 }
 
-- (void)readEvent:(NSData *_Nonnull)tagID error:(int)error data: (NSData *_Nullable) data
+- (void)logSensorEvent:(int)sensorType error:(int)error
 {
-    NSString *text;
+    if (error == ABSTRACT_SENSOR_LISTENER_NO_ERROR) {
+        [self appendTextToBuffer: [NSString stringWithFormat: @"Log sensor %@ success", _commandSensorTypeName] color: [UIColor whiteColor]];
+    } else {
+        [self appendTextToBuffer: [NSString stringWithFormat: @"Log sensor %@ error: %d", _commandSensorTypeName, error] color: [UIColor redColor]];
+    }
     
     [self enableStartButton: true];
-    text = [NSString stringWithFormat: @"readEvent tag: %@, error: %d, Data: %@", [PassiveReader dataToString: tagID], error, [PassiveReader dataToString: data]];
-    [self appendTextToBuffer: text error: error];
 }
 
-- (void)writeEvent:(NSData *_Nonnull)tagID error:(int)error
+- (void)readLocalizationEvent:(int)error latitude:(float)latitude longitude:(float)longitude timestamp:(int)timestamp
 {
-    NSString *text;
+    if (error == ABSTRACT_SENSOR_LISTENER_NO_ERROR) {
+        [self appendTextToBuffer: [NSString stringWithFormat: @"Read localization latitude/longitude: %f/%f@%d", latitude, longitude, timestamp] color: [UIColor whiteColor]];
+    } else {
+        [self appendTextToBuffer: [NSString stringWithFormat: @"Read localization error: %d", error] color: [UIColor redColor]];
+    }
     
     [self enableStartButton: true];
-    text = [NSString stringWithFormat: @"writeEvent tag: %@, error: %d", [PassiveReader dataToString: tagID], error];
-    [self appendTextToBuffer: text error: error];
 }
 
-- (void)lockEvent:(NSData *_Nonnull)tagID error:(int)error
+- (void)readMagneticSealStatusEvent:(int)error status:(int)status
 {
-    NSString *text;
-    
+    if (error == ABSTRACT_SENSOR_LISTENER_NO_ERROR) {
+        [self appendTextToBuffer: [NSString stringWithFormat: @"Magnetic seal status: %d", status] color: [UIColor whiteColor]];
+    } else {
+        [self appendTextToBuffer: [NSString stringWithFormat: @"Magnetic seal status error: %d", error] color: [UIColor redColor]];
+    }
+
     [self enableStartButton: true];
-    text = [NSString stringWithFormat: @"lockEvent tag: %@, error: %d", [PassiveReader dataToString: tagID], error];
-    [self appendTextToBuffer: text error: error];
 }
 
-- (void)killEvent:(NSData *_Nonnull)tagID error:(int)error
+- (void)readOpticSealBackgroundEvent:(int)error backgroundLevel:(int)backgroundLevel
 {
-    NSString *text;
+    if (error == ABSTRACT_SENSOR_LISTENER_NO_ERROR) {
+        [self appendTextToBuffer: [NSString stringWithFormat: @"Optical seal background level: %d", backgroundLevel] color: [UIColor whiteColor]];
+    } else {
+        [self appendTextToBuffer: [NSString stringWithFormat: @"Optical seal read background level error: %d", error] color: [UIColor redColor]];
+    }
     
     [self enableStartButton: true];
-    text = [NSString stringWithFormat: @"killEvent tag: %@, error: %d", [PassiveReader dataToString: tagID], error];
-    [self appendTextToBuffer: text error: error];
+    
+}
+
+- (void)readOpticSealForegroundEvent:(int)error foregroundLevel:(int)foregroundLevel
+{
+    if (error == ABSTRACT_SENSOR_LISTENER_NO_ERROR) {
+        [self appendTextToBuffer: [NSString stringWithFormat: @"Optical seal foreground level: %d", foregroundLevel] color: [UIColor whiteColor]];
+    } else {
+        [self appendTextToBuffer: [NSString stringWithFormat: @"Optical seal read foreground level error: %d", error] color: [UIColor redColor]];
+    }
+
+    [self enableStartButton: true];
+}
+
+- (void)readSealEvent:(int)error closed:(bool)closed status:(int)status
+{
+    if (error == ABSTRACT_SENSOR_LISTENER_NO_ERROR) {
+        if (closed == true) {
+            [self appendTextToBuffer: [NSString stringWithFormat: @"status closed@%d", status] color: [UIColor whiteColor]];
+        } else {
+            [self appendTextToBuffer: [NSString stringWithFormat: @"status open@%d", status] color: [UIColor whiteColor]];
+        }
+    } else {
+        [self appendTextToBuffer: [NSString stringWithFormat: @"status read error: %d", error] color: [UIColor redColor]];
+    }
+    
+    [self enableStartButton: true];
+}
+
+- (void)readSensorEvent:(int)sensorType error:(int)error sensorValue:(float)sensorValue timestamp:(int)timestamp
+{
+    if (error == ABSTRACT_SENSOR_LISTENER_NO_ERROR) {
+        [self appendTextToBuffer: [NSString stringWithFormat: @"Read sensor %@ value: %f@%d", _commandSensorTypeName, sensorValue, timestamp] color: [UIColor whiteColor]];
+    } else {
+        [self appendTextToBuffer: [NSString stringWithFormat: @"Read sensor %@ error: %d", _commandSensorTypeName, error] color: [UIColor redColor]];
+    }
+
+    [self enableStartButton: true];
+}
+
+- (void)setupSealEvent:(int)error
+{
+    if (error == ABSTRACT_SENSOR_LISTENER_NO_ERROR) {
+        [self appendTextToBuffer: @"Setup seal successfull" color: [UIColor whiteColor]];
+    } else {
+        [self appendTextToBuffer: [NSString stringWithFormat: @"Setup seal sensor error: %d", error] color: [UIColor redColor]];
+    }
+    
+    [self enableStartButton: true];
 }
 
 //
 #pragma mark - Navigation
 
 // In a storyboard-based application, you will often want to do a little preparation before navigation
-- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
-	if ([[segue.destinationViewController class] isKindOfClass: [ExtendedTagTestsViewController class]]) {
-		ExtendedTagTestsViewController *nextVC = (ExtendedTagTestsViewController *) segue.destinationViewController;
-		nextVC.deviceDetailVC = self;
-	}
-}
-
 -(void)unwindForSegue:(UIStoryboardSegue *)unwindSegue towardsViewController:(UIViewController *)subsequentVC
 {
     [_timer invalidate];
     [_api disconnect];
     
-    _eventsForwarder.readerListenerDelegate = nil;
-    _eventsForwarder.inventoryListenerDelegate = nil;
+    _eventsForwarder.sensorListenerDelegate = nil;
     _eventsForwarder.responseListenerDelegate = nil;
 }
 
 -(IBAction)unwindToDeviceDetailViewController:(UIStoryboardSegue *) unwindSegue
 {
-    _eventsForwarder.readerListenerDelegate = self;
-    _eventsForwarder.inventoryListenerDelegate = self;
+    _eventsForwarder.sensorListenerDelegate = self;
     _eventsForwarder.responseListenerDelegate = self;
-    
+
     _inExtendedView = false;
     if (_connected) {
         [self enableStartButton: true];

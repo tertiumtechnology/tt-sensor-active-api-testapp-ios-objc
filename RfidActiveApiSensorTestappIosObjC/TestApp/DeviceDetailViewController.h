@@ -61,6 +61,7 @@ typedef enum CommandType: int {
     NSMutableArray *_sensors;
     int *_sensorTypeCodes;
     NSDictionary* sensorTypeStrings;
+    NSString *_commandSensorTypeName;
 }
 
 @property (nonatomic, retain) NSString *deviceName;
