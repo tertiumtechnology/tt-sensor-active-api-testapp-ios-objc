@@ -248,6 +248,7 @@
                         <outlet property="lblBatteryStatus" destination="gtM-Dt-vqp" id="gbp-h2-D15"/>
                         <outlet property="lblDevice" destination="mfe-yx-Vns" id="rfY-1a-ar0"/>
                         <outlet property="pikSelectCommand" destination="szb-xK-E8i" id="rrN-ug-Zvf"/>
+                        <outlet property="pikSelectSensor" destination="0Xl-ga-wHk" id="csB-WC-loI"/>
                         <outlet property="txtCustomCommands" destination="drF-LK-lRY" id="2UJ-Jt-CfX"/>
                         <outlet property="txtInitialCommands" destination="LRX-ZZ-1jR" id="qZ0-Xr-G6I"/>
                     </connections>

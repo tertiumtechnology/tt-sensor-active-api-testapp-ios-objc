@@ -27,7 +27,7 @@
 #import "BleTableViewDeviceCell.h"
 #import "DeviceDetailViewController.h"
 #import "TxRxLib/TxRxManagerErrors.h"
-#import "PassiveAPI/AbstractScanListener.h"
+#import "RfidActiveApiSensorLibObjC/AbstractScanListener.h"
 
 @interface ScanViewController ()
 

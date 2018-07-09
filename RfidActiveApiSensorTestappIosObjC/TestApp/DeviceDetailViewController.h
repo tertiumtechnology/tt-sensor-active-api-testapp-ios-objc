@@ -36,26 +36,31 @@ typedef enum CommandType: int {
     ,repeatingCommand
 } CommandType;
 
-@interface DeviceDetailViewController : UIViewController<UIPickerViewDelegate, UIPickerViewDataSource, AbstractReaderListenerProtocol, AbstractResponseListenerProtocol, AbstractInventoryListenerProtocol>
+@interface DeviceDetailViewController : UIViewController<UIPickerViewDelegate, UIPickerViewDataSource,  AbstractResponseListenerProtocol, AbstractSensorListenerProtocol>
 {
-    PassiveReader *_api;
+    ActiveSensor *_api;
+    AbstractSensor *_activeSensor;
 	EventsForwarder *_eventsForwarder;
     NSTimer *_timer;
     UIFont *_font;
     NSMutableAttributedString *_initialCommandsBuffer;
     NSMutableAttributedString *_customCommandsBuffer;
-    NSMutableArray<Tag *> *_tags;
     float _batteryLevel;
     NSInteger _batteryStatus;
     bool _deviceAvailable;
+    bool _inMultiCommand;
     NSInteger _currentInitialOperation;
     NSInteger _maxInitialOperations;
     NSInteger _selectedRow;
     NSInteger _repeatingCommandIndex;
     NSInteger _lastRepeatingCommand;
+    NSString *_sensorTypeName;
     CommandType _lastCommandType;
     bool _inExtendedView;
     bool _connected;
+    NSMutableArray *_sensors;
+    int *_sensorTypeCodes;
+    NSDictionary* sensorTypeStrings;
 }
 
 @property (nonatomic, retain) NSString *deviceName;
@@ -64,6 +69,7 @@ typedef enum CommandType: int {
 @property (weak, nonatomic) IBOutlet UIButton *btnConnect;
 @property (weak, nonatomic) IBOutlet UIButton *btnStartOperation;
 @property (weak, nonatomic) IBOutlet UITextView *txtInitialCommands;
+@property (weak, nonatomic) IBOutlet UIPickerView *pikSelectSensor;
 @property (weak, nonatomic) IBOutlet UIPickerView *pikSelectCommand;
 @property (weak, nonatomic) IBOutlet UITextView *txtCustomCommands;
 @property (weak, nonatomic) IBOutlet UILabel *lblBatteryStatus;

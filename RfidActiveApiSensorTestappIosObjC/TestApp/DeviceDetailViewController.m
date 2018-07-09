@@ -23,10 +23,6 @@
  */
 
 #import "DeviceDetailViewController.h"
-#import "ExtendedTagTestsViewController.h"
-#import "PassiveAPI/ISO15693_tag.h"
-#import "PassiveAPI/ISO14443A_tag.h"
-#import "PassiveAPI/EPC_tag.h"
 
 @implementation DeviceDetailViewController
 
@@ -34,51 +30,74 @@ static NSMutableArray* _initialCommandsMap = nil;
 static NSMutableArray* _customCommandsMap = nil;
 
 static NSString* const operations[] = {
-                         @"Select Operation",
-                         @"Test Availability",
-                         @"Sound",
-                         @"Light",
-                         @"Stop Light",
-                         @"Set Shutdown Time (300)",
-                         @"Get Shutdown Time",
-                         @"Set RF Power",
-                         @"Get RF Power",
-                         @"Set ISO15693 Option Bits (Only HF)",
-                         @"Get ISO15693 Option Bits (Only HF)",
-                         @"Set ISO15693 Extension Flag(Only HF)",
-                         @"Get ISO15693 Extension Flag(Only HF)",
-                         @"Set ISO15693 Bitrate(Only HF)",
-                         @"Get ISO15693 Bitrate(Only HF)",
-                         @"Set EPC Frequency (only UHF)",
-                         @"Get EPC Frequency (only UHF)",
-                         @"setScanOnInput",
-                         @"setNormalScan",
-                         @"Do Inventory",
-                         @"Clear inventory",
-                         @"Extended tag tests",
-                         @"Read first tag",
-                         @"Write first tag",
-                         @"Lock first tag",
-                         @"Read TID for first tag",
-                         @"Write ID for first tag",
-                         @"Kill first tag"
+                        @"Select Operation",
+                        @"Test Availability",
+                        @"Get Clock",
+                        @"Set Clock",
+                        @"Read all sensors",
+                        @"Enable memory erase",
+                        @"Erase memory",
+                        @"Seek logged data",
+                        @"Get logged data (from last seek, 3 record forward)",
+                        @"Enable sensor log (60s)",
+                        @"Disable sensor log",
+                        @"Get current log configuration",
+                        @"Get measure from measuring sensor",
+                        @"Read measuring sensor",
+                        @"Calibrate measuring sensor",
+                        @"Get calibration configuration",
+                        @"Setup optical sensor (fg_level 0, fg_tol 1000, bg_level 10000)",
+                        @"Read optic foreground level for seal sensor",
+                        @"Read optic background level for seal sensor",
+                        @"Read seal sensor status",
+                        @"Get localization from localization sensor",
+                        @"Read localization sensor"
                     };
 
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    // Do any additional setup after loading the view.
-    _api = [PassiveReader getInstance];
-	_eventsForwarder = [EventsForwarder getInstance];
-    _eventsForwarder.readerListenerDelegate = self;
-    _eventsForwarder.inventoryListenerDelegate = self;
-    _eventsForwarder.responseListenerDelegate = self;
+    //
+    sensorTypeStrings = @{
+                                               @ABSTRACT_SENSOR_BATTERY_CHARGE_SENSOR: @"Battery charge sensor",
+                                               @ABSTRACT_SENSOR_DISPLACEMENT_TRANSDUCER_SENSOR_1: @"Displacement transducer sensor type 1",
+                                               @ABSTRACT_SENSOR_INTERNAL_TEMPERATURE_SENSOR_1: @"Internal temperature sensor type 1",
+                                               @ABSTRACT_SENSOR_EXTERNAL_TEMPERATURE_SENSOR_1: @"External temperature sensor type 1",
+                                               @ABSTRACT_SENSOR_OXYGEN_5_PERCENT_SENSOR: @"Oxygen sensor type (5%)",
+                                               @ABSTRACT_SENSOR_OXYGEN_25_PERCENT_SENSOR: @"Oxygen sensor type (25%)",
+                                               @ABSTRACT_SENSOR_OBSOLETE_TEMPERATUTE_SENSOR: @"Obsolete temperature sensor type",
+                                               @ABSTRACT_SENSOR_OPTIC_EMITTER_ON_SENSOR: @"Optic sensor type",
+                                               @ABSTRACT_SENSOR_OPTIC_EMITTER_OFF_OR_MAGNETIC_SENSOR: @"Optic / Magnetic sensor type",
+                                               @ABSTRACT_SENSOR_ELECTRONIC_SEAL_SENSOR: @"Electronic seal sensor type",
+                                               @ABSTRACT_SENSOR_TEMPERATURE_SENSOR: @"Temperature sensor type",
+                                               @ABSTRACT_SENSOR_RELATIVE_HUMIDITY_SENSOR: @"Relative humidity sensor type",
+                                               @ABSTRACT_SENSOR_ATMOSPHERIC_PRESSURE_SENSOR: @"Atmospheric pressure sensor type",
+                                               @ABSTRACT_SENSOR_PRESSURE_SENSOR: @"Pressure sensor type",
+                                               @ABSTRACT_SENSOR_CURRENT_SENSOR: @"Current sensor type",
+                                               @ABSTRACT_SENSOR_LEM_CURRENT_SENSOR: @"LEM current sensor type",
+                                               @ABSTRACT_SENSOR_DISPLACEMENT_TRANSDUCER_SENSOR_2: @"Displacement transducer sensor type 2",
+                                               @ABSTRACT_SENSOR_INTERNAL_TEMPERATURE_SENSOR_2: @"Internal temperature sensor type 2",
+                                               @ABSTRACT_SENSOR_EXTERNAL_TEMPERATURE_SENSOR_2: @"External temperature sensor type 2",
+                                               @ABSTRACT_SENSOR_LOCALIZATION_LATITUDE_SENSOR_0: @"Localization latitude sensor type",
+                                               @ABSTRACT_SENSOR_LOCALIZATION_LATITUDE_SENSOR_1: @"Localization latitude sensor type",
+                                               @ABSTRACT_SENSOR_LOCALIZATION_LONGITUDE_SENSOR_0: @"Localization longitude sensor type",
+                                               @ABSTRACT_SENSOR_LOCALIZATION_LONGITUDE_SENSOR_1: @"Localization longitude sensor type",
+                                               @ABSTRACT_SENSOR_INCLINOMETER_AXIS_X_SENSOR: @"Inclinometer axis Y sensor type",
+                                               @ABSTRACT_SENSOR_INCLINOMETER_AXIS_Y_SENSOR: @"Inclinometer axis X sensor type",
+                                               @ABSTRACT_SENSOR_PIEZOMETRIC_PRESSURE_SENSOR: @"Piezometric pressure sensor type",
+                                               @ABSTRACT_SENSOR_LOAD_CELL_SENSOR: @"Load cell sensor type",
+                                               };
     
+    // Do any additional setup after loading the view.
+    _api = [ActiveSensor getInstance];
+	_eventsForwarder = [EventsForwarder getInstance];
+    _eventsForwarder.responseListenerDelegate = self;
+    _eventsForwarder.sensorListenerDelegate = self;
+
     //
     _font = [UIFont fontWithName: @"Terminal" size: 10.0];
     
     //
-    _tags = [NSMutableArray new];
     _initialCommandsBuffer = [NSMutableAttributedString new];
     _customCommandsBuffer = [NSMutableAttributedString new];
     _txtInitialCommands.layer.borderColor = [[UIColor blueColor] CGColor];
@@ -93,6 +112,9 @@ static NSString* const operations[] = {
     _inExtendedView = false;
     _connected = false;
     _lastRepeatingCommand = 0;
+    _inMultiCommand = false;
+    _activeSensor = nil;
+    _sensors = [NSMutableArray new];
     
     //
     _timer = [NSTimer scheduledTimerWithTimeInterval: 15.0 target: self selector: @selector(repeatingCommandsTimerTick:) userInfo: nil repeats: YES];
@@ -246,7 +268,7 @@ static NSString* const operations[] = {
     _batteryLevel = 0;
     _batteryStatus = 0;
     _deviceAvailable = false;
-    [_tags removeAllObjects];
+    [_sensors removeAllObjects];
 }
 
 -(void)callNextInitialOperation
@@ -254,32 +276,8 @@ static NSString* const operations[] = {
     if (!_initialCommandsMap) {
         _initialCommandsMap = [NSMutableArray new];
         [_initialCommandsMap addObject: ^(DeviceDetailViewController*vc) {
-            if ([vc->_api isHF]) {
-                [vc appendTextToBuffer: @"HF reader (for ISO-15693/ISO-14443 tags)" color: [UIColor whiteColor]];
-            } else {
-                [vc appendTextToBuffer: @"UHF reader (for EPC tags)" color: [UIColor whiteColor]];
-            }
-            
-            [vc enableStartButton: true];
-        }];
-        
-        [_initialCommandsMap addObject: ^(DeviceDetailViewController*vc) {
-            [vc appendTextToBuffer: @"setInventoryType" color: [UIColor yellowColor]];
-            if ([vc->_api isHF]){
-                [vc->_api setInventoryType: ISO15693_AND_ISO14443A_STANDARD];
-            } else {
-                [vc->_api setInventoryType: EPC_STANDARD];
-            }
-        }];
-        
-        [_initialCommandsMap addObject: ^(DeviceDetailViewController*vc) {
             [vc appendTextToBuffer: @"getFirmwareVersion" color: [UIColor yellowColor]];
             [vc->_api getFirmwareVersion];
-        }];
-        
-        [_initialCommandsMap addObject: ^(DeviceDetailViewController*vc) {
-            [vc appendTextToBuffer: @"setInventoryParameters" color: [UIColor yellowColor]];
-            [vc->_api setInventoryParameters: FEEDBACK_SOUND_AND_LIGHT timeout: 1000 interval: 1000];
         }];
     }
     
@@ -317,271 +315,296 @@ static NSString* const operations[] = {
         // Test Availability
         [_customCommandsMap addObject: ^(DeviceDetailViewController*vc) {
             [vc->_api testAvailability];
+            [vc appendTextToBuffer: @"Test availability" color: [UIColor yellowColor]];
         }];
         
-        // Sound
+        // Get Clock
         [_customCommandsMap addObject: ^(DeviceDetailViewController*vc) {
-            [vc->_api sound: 1000 step: 1000 duration: 1000 interval: 500 repetition: 3];
+            [vc->_api getClock];
+            [vc appendTextToBuffer: @"Get Clock" color: [UIColor yellowColor]];
         }];
 
-        // Light
+        // // Set Clock
         [_customCommandsMap addObject: ^(DeviceDetailViewController*vc) {
-            [vc->_api light: true ledBlinking: 500];
+            vc->_inMultiCommand = true;
+            [vc->_api getClock];
+            [vc appendTextToBuffer: @"Set Clock" color: [UIColor yellowColor]];
         }];
 
-        // Light off
+        // Read all sensors
         [_customCommandsMap addObject: ^(DeviceDetailViewController*vc) {
-            [vc->_api light: false ledBlinking: 0];
+            [vc->_api readAllSensors];
+            [vc appendTextToBuffer: @"Read all sensors" color: [UIColor yellowColor]];
         }];
 
-        // Set Shutdown Time (300)
+        // Enable memory erase
         [_customCommandsMap addObject: ^(DeviceDetailViewController*vc) {
-            [vc->_api setShutdownTime: 300];
+            [vc->_api enableMemoryErase];
+            [vc appendTextToBuffer: @"Enable memory erase" color: [UIColor yellowColor]];
         }];
 
-        // Get Shutdown Time
+        // // Erase memory
         [_customCommandsMap addObject: ^(DeviceDetailViewController*vc) {
-            [vc->_api getShutdownTime];
+            [vc->_api eraseMemory];
+            [vc appendTextToBuffer: @"Erase memory" color: [UIColor yellowColor]];
         }];
 
-        // Set RF Power
+        // Seek logged data
         [_customCommandsMap addObject: ^(DeviceDetailViewController*vc) {
-            if ([vc->_api isHF]) {
-                [vc->_api setRFpower: HF_RF_FULL_POWER mode: HF_RF_AUTOMATIC_POWER];
-            } else {
-                [vc->_api setRFpower: UHF_RF_POWER_0_DB mode: UHF_RF_POWER_AUTOMATIC_MODE];
+            [vc->_api seekLoggedData: 1];
+            [vc appendTextToBuffer: @"Seek logged data" color: [UIColor yellowColor]];
+        }];
+        
+        // // Get logged data
+        [_customCommandsMap addObject: ^(DeviceDetailViewController*vc) {
+            [vc->_api getLoggedData: 3 backward: false];
+            [vc appendTextToBuffer: @"Get logged data" color: [UIColor yellowColor]];
+        }];
+        
+        // Enable log sensor
+        [_customCommandsMap addObject: ^(DeviceDetailViewController*vc) {
+            if (self->_activeSensor == nil) {
+                [vc appendTextToBuffer: @"Select a sensor first!" color: [UIColor redColor]];
+                [vc enableStartButton: true];
+                return;
             }
-        }];
-        
-        // Get RF Power
-        [_customCommandsMap addObject: ^(DeviceDetailViewController*vc) {
-            [vc->_api getRFpower];
-        }];
-        
-        // SetISO15693optionBits
-        [_customCommandsMap addObject: ^(DeviceDetailViewController*vc) {
-            [vc->_api setISO15693optionBits: ISO15693_OPTION_BITS_NONE];
+
+            [vc appendTextToBuffer: @"Enable log sensor" color: [UIColor yellowColor]];
+            [vc appendTextToBuffer: [NSString stringWithFormat: @"Enabling log for sensor: %@", vc->_sensorTypeName] color: [UIColor whiteColor]];
+            [self->_activeSensor logSensor: true acquisitionPeriod: 60];
         }];
 
-        // GetISO15693optionBits
+        // Disable log sensor
         [_customCommandsMap addObject: ^(DeviceDetailViewController*vc) {
-            [vc->_api getISO15693optionBits];
-        }];
-        
-        // SetISO15693extensionFlag
-        [_customCommandsMap addObject: ^(DeviceDetailViewController*vc) {
-            [vc->_api setISO15693extensionFlag: true permanent: false];
-        }];
-        
-        // GetISO15693extensionFlag
-        [_customCommandsMap addObject: ^(DeviceDetailViewController*vc) {
-            [vc->_api getISO15693extensionFlag];
-        }];
-        
-        // SetISO15693bitrate
-        [_customCommandsMap addObject: ^(DeviceDetailViewController*vc) {
-            [vc->_api setISO15693bitrate: ISO15693_HIGH_BITRATE permanent: false];
-        }];
-        
-        // GetISO15693bitrate
-        [_customCommandsMap addObject: ^(DeviceDetailViewController*vc) {
-            [vc->_api getISO15693bitrate];
-        }];
+            if (self->_activeSensor == nil) {
+                [vc appendTextToBuffer: @"Select a sensor first!" color: [UIColor redColor]];
+                [vc enableStartButton: true];
+                return;
+            }
 
-        // SetEPCfrequency
-        [_customCommandsMap addObject: ^(DeviceDetailViewController*vc) {
-            [vc->_api setEPCfrequency: RF_CARRIER_866_9_MHZ];
+            [vc appendTextToBuffer: @"Disable log sensor" color: [UIColor yellowColor]];
+            [vc appendTextToBuffer: [NSString stringWithFormat: @"Disabling log for sensor: %@", vc->_sensorTypeName] color: [UIColor whiteColor]];
+            [self->_activeSensor logSensor: false acquisitionPeriod: 1];
         }];
         
-        // GetEPCfrequency
+        // Get current Log Configuration
         [_customCommandsMap addObject: ^(DeviceDetailViewController*vc) {
-            [vc->_api getEPCfrequency];
+            if (self->_activeSensor == nil) {
+                [vc appendTextToBuffer: @"Select a sensor first!" color: [UIColor redColor]];
+                [vc enableStartButton: true];
+                return;
+            }
+
+            [vc appendTextToBuffer: @"Get current log configuration" color: [UIColor yellowColor]];
+            [vc appendTextToBuffer: [NSString stringWithFormat: @"Retreiving log configuration for sensor: %@", vc->_sensorTypeName] color: [UIColor whiteColor]];
+            [self->_activeSensor getLogConfiguration];
         }];
         
-        // setScanOnInput
+        // Get measure from measuring sensor
         [_customCommandsMap addObject: ^(DeviceDetailViewController*vc) {
-            [vc->_api setInventoryMode: SCAN_ON_INPUT_MODE];
-        }];
-        
-        // setNormalScan
-        [_customCommandsMap addObject: ^(DeviceDetailViewController*vc) {
-            [vc->_api setInventoryMode: NORMAL_MODE];
-        }];
-        
-        // DoInventory
-        [_customCommandsMap addObject: ^(DeviceDetailViewController*vc) {
-            [self->_tags removeAllObjects];
-            [vc->_api doInventory];
-            
-            // IMPORTANT! force no command sent, inventory doesn't notify back!
             [vc enableStartButton: true];
-        }];
-        
-        // Clear inventory
-        [_customCommandsMap addObject: ^(DeviceDetailViewController*vc) {
-            [self->_tags removeAllObjects];
-            
-            // IMPORTANT! force no command sent, inventory doesn't notify back!
-            [vc enableStartButton: true];
-            [vc appendTextToBuffer: @"Tag list cleared!" color: [UIColor whiteColor]];
-        }];
-        
-        // Extended tag tests
-        [_customCommandsMap addObject: ^(DeviceDetailViewController*vc) {
-            ExtendedTagTestsViewController *extTestsVC;
-            
-            if (vc->_tags.count != 0) {
-                extTestsVC = [vc.storyboard instantiateViewControllerWithIdentifier: @"ExtendedTagTestsViewController"];
-                if (extTestsVC) {
-                    extTestsVC.tags = vc->_tags;
-                    extTestsVC.deviceDetailVC = vc;
-                    extTestsVC.deviceName = vc.deviceName;
-                    vc->_inExtendedView = true;
-                    [vc.navigationController pushViewController: extTestsVC animated: true];
-                }
-            } else {
-                [vc appendTextToBuffer: @"Please do inventory first!" color: [UIColor redColor]];
-            }
-            [vc enableStartButton: true];
-        }];
-        
-        // Read first tag
-        [_customCommandsMap addObject: ^(DeviceDetailViewController*vc) {
-            if (vc->_tags.count != 0) {
-                id tag = vc->_tags[0];
-                if ([tag isKindOfClass: [ISO15693_tag class]]) {
-                    ISO15693_tag* tag = (ISO15693_tag *) vc->_tags[0];
-                    [tag setTimeout: 2000];
-                    [tag read: 0 blocks: 2];
-                 } else if ([tag isKindOfClass: [EPC_tag class]]) {
-                    EPC_tag* tag = (EPC_tag *) vc->_tags[0];
-                    [tag read: 8 blocks: 4 password: nil];
-                }
-            } else {
-                [vc appendTextToBuffer: @"Please do inventory first!" color: [UIColor redColor]];
+            if (self->_activeSensor == nil) {
+                [vc appendTextToBuffer: @"Select a sensor first!" color: [UIColor redColor]];
                 [vc enableStartButton: true];
+                return;
+            }
+            
+            [vc appendTextToBuffer: @"Get measure from measuring sensor" color: [UIColor yellowColor]];
+            if ([self->_activeSensor isKindOfClass: [MeasuringSensor class]]) {
+                MeasuringSensor *sensor = (MeasuringSensor *) self->_activeSensor;
+                if ([sensor getMeasureValidity] == true) {
+                    [vc appendTextToBuffer: [NSString stringWithFormat: @"measure value: %f@%d", [sensor getMeasureValue], [sensor getMeasureTimestamp]] color: [UIColor whiteColor]];
+                } else {
+                    [vc appendTextToBuffer: @"Sensor measure invalid" color: [UIColor redColor]];
+                }
+            } else {
+                [vc appendTextToBuffer: @"Invalid command for this kind of sensor (not measuring sensor)" color: [UIColor redColor]];
+                return;
             }
         }];
         
-        // Write first tag
+        // Read measuring sensor
         [_customCommandsMap addObject: ^(DeviceDetailViewController*vc) {
-            NSDate *date = [NSDate new];
-            NSCalendar *calendar = [NSCalendar currentCalendar];
-            NSInteger minutes = [calendar component: NSCalendarUnitMinute fromDate: date];
-            
-            char data[] = {
-                        (char)(minutes)
-                        ,(char)(minutes+1)
-                        ,(char)(minutes+2)
-                        ,(char)(minutes+3)
-                        ,(char)(minutes+4)
-                        ,(char)(minutes+5)
-                        ,(char)(minutes+6)
-                        ,(char)(minutes+7)
-            };
-            
-            if (vc->_tags.count != 0) {
-                id tag = vc->_tags[0];
-                if ([tag isKindOfClass: [ISO15693_tag class]]) {
-                    ISO15693_tag *tag = (ISO15693_tag *) vc->_tags[0];
-                    [tag setTimeout: 2000];
-                    [tag write: 0 data: [[NSData alloc] initWithBytes: data length: sizeof(data)/sizeof(char)]];
-                } else if ([tag isKindOfClass: [EPC_tag class]]) {
-                    EPC_tag *tag = (EPC_tag *) vc->_tags[0];
-                    [tag write: 8 data: [[NSData alloc] initWithBytes: data length: sizeof(data)/sizeof(char)] password: nil];
-                }
-            } else {
-                [vc appendTextToBuffer: @"Please do inventory first!" color: [UIColor redColor]];
+            if (self->_activeSensor == nil) {
+                [vc appendTextToBuffer: @"Select a sensor first!" color: [UIColor redColor]];
                 [vc enableStartButton: true];
+                return;
+            }
+            
+            [vc appendTextToBuffer: @"Read measuring sensor" color: [UIColor yellowColor]];
+            if ([self->_activeSensor isKindOfClass: [MeasuringSensor class]]) {
+                MeasuringSensor *sensor = (MeasuringSensor *) self->_activeSensor;
+                [vc appendTextToBuffer: [NSString stringWithFormat: @"Reading measuring sensor: %@", vc->_sensorTypeName] color: [UIColor whiteColor]];
+                [sensor readSensor];
+            } else {
+                [vc appendTextToBuffer: @"Invalid command for this kind of sensor (not measuring sensor)" color: [UIColor redColor]];
+                [vc enableStartButton: true];
+                return;
             }
         }];
         
-        // Lock first tag
+        // Calibrate measuring sensor (offset 0, gain 1, scale 25)
         [_customCommandsMap addObject: ^(DeviceDetailViewController*vc) {
-            if (vc->_tags.count != 0) {
-                id tag = vc->_tags[0];
-                if ([tag isKindOfClass: [ISO15693_tag class]]) {
-                    ISO15693_tag *tag = (ISO15693_tag *) vc->_tags[0];
-                    [tag setTimeout: 2000];
-                    [tag lock: 0 blocks: 2];
-                } else if ([tag isKindOfClass: [EPC_tag class]]) {
-                    EPC_tag *tag = (EPC_tag *) vc->_tags[0];
-                    [tag lock: EPC_TAG_MEMORY_NOTWRITABLE password: nil];
-                }
-            } else {
-                [vc appendTextToBuffer: @"Please do inventory first!" color: [UIColor redColor]];
+            if (self->_activeSensor == nil) {
+                [vc appendTextToBuffer: @"Select a sensor first!" color: [UIColor redColor]];
                 [vc enableStartButton: true];
+                return;
+            }
+
+            [vc appendTextToBuffer: @"Calibrate measuring sensor (offset 0, gain 1, scale 25)" color: [UIColor yellowColor]];
+            if ([self->_activeSensor isKindOfClass: [MeasuringSensor class]]) {
+                MeasuringSensor *sensor = (MeasuringSensor *) self->_activeSensor;
+                [vc appendTextToBuffer: [NSString stringWithFormat: @"Calibrating measuring sensor: %@", vc->_sensorTypeName] color: [UIColor whiteColor]];
+                [sensor calibrateSensor: 0 valueGain: 1 fullScale: 25];
+            } else {
+                [vc appendTextToBuffer: @"Invalid command for this kind of sensor (not measuring sensor)" color: [UIColor redColor]];
+                [vc enableStartButton: true];
+                return;
             }
         }];
 
-        // Read TID for first tag
+        // Get Calibration Configuration from Measuring Sensor
         [_customCommandsMap addObject: ^(DeviceDetailViewController*vc) {
-            if (vc->_tags.count != 0) {
-                id tag = vc->_tags[0];
-                if ([tag isKindOfClass: [EPC_tag class]]) {
-                    EPC_tag *tag = (EPC_tag *) vc->_tags[0];
-                    [tag readTID: 8 password: nil];
-                } else {
-                    [vc appendTextToBuffer: @"Command unavailable on this tag" color: [UIColor redColor]];
-                    [vc enableStartButton: true];
-                }
-            } else {
-                [vc appendTextToBuffer: @"Please do inventory first!" color: [UIColor redColor]];
+            if (self->_activeSensor == nil) {
+                [vc appendTextToBuffer: @"Select a sensor first!" color: [UIColor redColor]];
                 [vc enableStartButton: true];
+                return;
             }
-        }];
 
-        // Write ID for first tag
-        [_customCommandsMap addObject: ^(DeviceDetailViewController*vc) {
-            UInt8 ID[] = {
-                      0x00,
-                      0x01,
-                      0x02,
-                      0x03,
-                      0x04,
-                      0x05,
-                      0x06,
-                      0x07,
-                      0x08,
-                      0x09,
-                      0x0A,
-                      0x0B,
-                      0x0C,
-                      0x0D,
-                      0x0E,
-                      0x0F
-            };
-            
-            if (vc->_tags.count != 0) {
-                id tag = vc->_tags[0];
-                if ([tag isKindOfClass: [EPC_tag class]]) {
-                    EPC_tag *tag = (EPC_tag *) vc->_tags[0];
-                    [tag writeID: [[NSData alloc] initWithBytes: ID length: sizeof(ID)/sizeof(UInt8)] NSI: 0];
-                } else {
-                    [vc appendTextToBuffer: @"Command unavailable on this tag" color: [UIColor redColor]];
-                    [vc enableStartButton: true];
-                }
+            [vc appendTextToBuffer: @"Get Calibration Configuration from Measuring Sensor" color: [UIColor yellowColor]];
+            if ([self->_activeSensor isKindOfClass: [MeasuringSensor class]]) {
+                MeasuringSensor *sensor = (MeasuringSensor *) self->_activeSensor;
+                [vc appendTextToBuffer: [NSString stringWithFormat: @"Getting calibrationg configuration for measuring sensor: %@", vc->_sensorTypeName] color: [UIColor whiteColor]];
+                [sensor getCalibrationConfiguration];
             } else {
-                [vc appendTextToBuffer: @"Please do inventory first!" color: [UIColor redColor]];
+                [vc appendTextToBuffer: @"Invalid command for this kind of sensor (not measuring sensor)" color: [UIColor redColor]];
                 [vc enableStartButton: true];
+                return;
             }
         }];
         
-        // Kill first tag
+        // Setup optical seal sensor (fg_level 0, fg_tolerance 1000...)
         [_customCommandsMap addObject: ^(DeviceDetailViewController*vc) {
-            if (vc->_tags.count != 0) {
-                id tag = vc->_tags[0];
-                if ([tag isKindOfClass: [EPC_tag class]]) {
-                    char data[] = { 0, 0, 0, 0 };
-                    EPC_tag *tag = (EPC_tag *) vc->_tags[0];
-                    [tag kill: [[NSData alloc] initWithBytes: data length: sizeof(data)/sizeof(UInt8)]];
+            if (self->_activeSensor == nil) {
+                [vc appendTextToBuffer: @"Select a sensor first!" color: [UIColor redColor]];
+                [vc enableStartButton: true];
+                return;
+            }
+            
+            [vc appendTextToBuffer: @"Setup optical seal sensor (fg_level 0, fg_tolerance 1000...)" color: [UIColor yellowColor]];
+            if ([self->_activeSensor isKindOfClass: [SealSensor class]]) {
+                SealSensor *sensor = (SealSensor *) self->_activeSensor;
+                [vc appendTextToBuffer: [NSString stringWithFormat: @"Setting up optical seal sensor: %@", vc->_sensorTypeName] color: [UIColor whiteColor]];
+                [sensor setupOpticSeal: 0 foregroundTolerance: 1000 backgroundLevel: 1000];
+            } else {
+                [vc appendTextToBuffer: @"Invalid command for this kind of sensor (not seal sensor)" color: [UIColor redColor]];
+                [vc enableStartButton: true];
+                return;
+            }
+        }];
+        
+        // Read optic foreground level for Seal Sensors
+        [_customCommandsMap addObject: ^(DeviceDetailViewController*vc) {
+            if (self->_activeSensor == nil) {
+                [vc appendTextToBuffer: @"Select a sensor first!" color: [UIColor redColor]];
+                [vc enableStartButton: true];
+                return;
+            }
+
+            [vc appendTextToBuffer: @"Read optic foreground level for Seal Sensors" color: [UIColor yellowColor]];
+            if ([self->_activeSensor isKindOfClass: [SealSensor class]]) {
+                SealSensor *sensor = (SealSensor *) self->_activeSensor;
+                [vc appendTextToBuffer: [NSString stringWithFormat: @"Reading optic foreground level for seal sensor: %@", vc->_sensorTypeName] color: [UIColor whiteColor]];
+                [sensor readOpticSealForeground];
+            } else {
+                [vc appendTextToBuffer: @"Invalid command for this kind of sensor (not seal sensor)" color: [UIColor redColor]];
+                [vc enableStartButton: true];
+                return;
+            }
+        }];
+        
+        // Read optic background level for Seal Sensors
+        [_customCommandsMap addObject: ^(DeviceDetailViewController*vc) {
+            if (self->_activeSensor == nil) {
+                [vc appendTextToBuffer: @"Select a sensor first!" color: [UIColor redColor]];
+                [vc enableStartButton: true];
+                return;
+            }
+            
+            [vc appendTextToBuffer: @"Read optic background level for Seal Sensors" color: [UIColor yellowColor]];
+            if ([self->_activeSensor isKindOfClass: [SealSensor class]]) {
+                SealSensor *sensor = (SealSensor *) self->_activeSensor;
+                [vc appendTextToBuffer: [NSString stringWithFormat: @"Reading optic background level for seal sensor: %@", vc->_sensorTypeName] color: [UIColor whiteColor]];
+                [sensor readOpticSealBackground];
+            } else {
+                [vc appendTextToBuffer: @"Invalid command for this kind of sensor (not seal sensor)" color: [UIColor redColor]];
+                [vc enableStartButton: true];
+                return;
+            }
+        }];
+        
+        // Read seal sensor status
+        [_customCommandsMap addObject: ^(DeviceDetailViewController*vc) {
+            if (self->_activeSensor == nil) {
+                [vc appendTextToBuffer: @"Select a sensor first!" color: [UIColor redColor]];
+                [vc enableStartButton: true];
+                return;
+            }
+            
+            [vc appendTextToBuffer: @"Read seal sensor status" color: [UIColor yellowColor]];
+            if ([self->_activeSensor isKindOfClass: [SealSensor class]]) {
+                SealSensor *sensor = (SealSensor *) self->_activeSensor;
+                [vc appendTextToBuffer: [NSString stringWithFormat: @"Reading status for seal sensor: %@", vc->_sensorTypeName] color: [UIColor whiteColor]];
+                [sensor readSeal];
+            } else {
+                [vc appendTextToBuffer: @"Invalid command for this kind of sensor (not seal sensor)" color: [UIColor redColor]];
+                [vc enableStartButton: true];
+                return;
+            }
+        }];
+        
+        // Get localization from localization sensor
+        [_customCommandsMap addObject: ^(DeviceDetailViewController*vc) {
+            [vc enableStartButton: true];
+            if (self->_activeSensor == nil) {
+                [vc appendTextToBuffer: @"Select a sensor first!" color: [UIColor redColor]];
+                [vc enableStartButton: true];
+                return;
+            }
+            
+            [vc appendTextToBuffer: @"Get localization from localization sensor" color: [UIColor yellowColor]];
+            if ([self->_activeSensor isKindOfClass: [LocalizationSensor class]]) {
+                LocalizationSensor *sensor = (LocalizationSensor *) self->_activeSensor;
+                [vc appendTextToBuffer: [NSString stringWithFormat: @"Reading localization from localization sensor: %@", vc->_sensorTypeName] color: [UIColor whiteColor]];
+                if ([sensor getLocalizationValidity] == true) {
+                    [vc appendTextToBuffer: [NSString stringWithFormat: @"Localization data for localization sensor: %f %f", [sensor getLongitudeValue], [sensor getLatitudeValue]] color: [UIColor whiteColor]];
                 } else {
-                    [vc appendTextToBuffer: @"Command unavailable on this tag" color: [UIColor redColor]];
-                    [vc enableStartButton: true];
+                    [vc appendTextToBuffer: [NSString stringWithFormat: @"Localization error for localization sensor: %@", vc->_sensorTypeName] color: [UIColor redColor]];
                 }
             } else {
-                [vc appendTextToBuffer: @"Please do inventory first!" color: [UIColor redColor]];
+                [vc appendTextToBuffer: @"Invalid command for this kind of sensor (not localization sensor)" color: [UIColor redColor]];
                 [vc enableStartButton: true];
+                return;
+            }
+        }];
+        
+        // Read localization sensor
+        [_customCommandsMap addObject: ^(DeviceDetailViewController*vc) {
+            if (self->_activeSensor == nil) {
+                [vc appendTextToBuffer: @"Select a sensor first!" color: [UIColor redColor]];
+                [vc enableStartButton: true];
+                return;
+            }
+
+            [vc appendTextToBuffer: @"Read localization sensor" color: [UIColor yellowColor]];
+            if ([self->_activeSensor isKindOfClass: [LocalizationSensor class]]) {
+                LocalizationSensor *sensor = (LocalizationSensor *) self->_activeSensor;
+                [vc appendTextToBuffer: [NSString stringWithFormat: @"Reading localization sensor: %@", vc->_sensorTypeName] color: [UIColor whiteColor]];
+                [sensor readLocalization];
+            } else {
+                [vc appendTextToBuffer: @"Invalid command for this kind of sensor (not localization sensor)" color: [UIColor redColor]];
+                [vc enableStartButton: true];
+                return;
             }
         }];
     }
@@ -609,22 +632,16 @@ static NSString* const operations[] = {
 //
 -(void)repeatingCommandsTimerTick:(NSTimer *)timer
 {
-    if (_connected && _inExtendedView == false && _btnStartOperation.isEnabled == true && _currentInitialOperation >= _maxInitialOperations) {
-        if (_repeatingCommandIndex >= 3)
+    if (_connected && _inExtendedView == false && _inMultiCommand == false && _btnStartOperation.isEnabled == true && _currentInitialOperation >= _maxInitialOperations) {
+        if (_repeatingCommandIndex >= 1)
             _repeatingCommandIndex = 0;
-        
+
         _lastCommandType = repeatingCommand;
         [self enableStartButton: false];
         
         if (_repeatingCommandIndex == 0) {
-            [self->_api getBatteryLevel];
-            _lastRepeatingCommand = ABSTRACT_READER_LISTENER_GET_BATTERY_LEVEL_COMMAND;
-        } else if (_repeatingCommandIndex == 1) {
-            [self->_api getBatteryStatus];
-            _lastRepeatingCommand = ABSTRACT_READER_LISTENER_GET_BATTERY_STATUS_COMMAND;
-        } else if (_repeatingCommandIndex == 2) {
-            [self->_api testAvailability];
-            _lastRepeatingCommand = ABSTRACT_READER_LISTENER_TEST_AVAILABILITY_COMMAND;
+            [_api testAvailability];
+            _lastRepeatingCommand = ABSTRACT_SENSOR_LISTENER_TEST_AVAILABILITY_COMMAND;
         }
         
         _repeatingCommandIndex = _repeatingCommandIndex + 1;
@@ -634,7 +651,14 @@ static NSString* const operations[] = {
     [self callCustomOperation: (int)_selectedRow];
 }
 
-// AbstractReaderListenerProtocol implementation
+// AbstractSensorListenerProtocol implementation
+-(void)availabilityEvent: (bool) available
+{
+    _deviceAvailable = available;
+    [self updateBatteryLabel];
+    [self appendTextToBuffer: [NSString stringWithFormat: @"availabilityEvent %@", (available ? @"yes": @"no")] color: [UIColor whiteColor] command: ABSTRACT_SENSOR_LISTENER_TEST_AVAILABILITY_COMMAND];
+}
+
 -(void)connectionFailureEvent: (int) error
 {
     UIAlertView *alertView;
@@ -646,9 +670,25 @@ static NSString* const operations[] = {
 
 -(void)connectionSuccessEvent
 {
+    [self appendTextToBuffer: @"Successfull connection" color: [UIColor whiteColor]];
     [self enableStartButton: true];
     _connected = true;
     [_btnConnect setTitle: @"DISCONNECT" forState: UIControlStateNormal];
+    [self appendTextToBuffer: [NSString stringWithFormat: @"%d sensors found", [_api getSensorsNumber]] color: [UIColor whiteColor]];
+    _sensorTypeCodes = [_api getSensorsTypes];
+    [_sensors removeAllObjects];
+    for (int i = 0; i < [_api getSensorsNumber]; i++) {
+        NSString *sensorType = sensorTypeStrings[@(_sensorTypeCodes[i])];
+        [self appendTextToBuffer: [NSString stringWithFormat: @"Found %@", sensorType] color: [UIColor whiteColor]];
+        [_sensors addObject: sensorType];
+    }
+    
+    if ([_api getSensorsNumber] > 0) {
+        _activeSensor = [_api getSensorByIndex: 0];
+        _sensorTypeName = sensorTypeStrings[@(_sensorTypeCodes[0])];
+    }
+    
+    [_pikSelectSensor reloadAllComponents];
     [self pushCommands];
 }
 
@@ -659,21 +699,20 @@ static NSString* const operations[] = {
     [_btnConnect setTitle: @"CONNECT" forState: UIControlStateNormal];
 }
 
--(void)availabilityEvent: (bool) available
-{
-    _deviceAvailable = available;
-    [self updateBatteryLabel];
-    [self appendTextToBuffer: [NSString stringWithFormat: @"availabilityEvent %@", (available ? @"yes": @"no")] color: [UIColor whiteColor] command: ABSTRACT_READER_LISTENER_TEST_AVAILABILITY_COMMAND];
-}
-
 -(void)resultEvent: (int) command error: (int) error
 {
     NSString *result, *errStr;
-    [self enableStartButton: true];
-    
     errStr = (error == 0 ? @"NO error": [NSString stringWithFormat: @"Error %d", error]);
     result = [NSString stringWithFormat: @"Result command = %d %@", command, errStr];
     [self appendTextToBuffer: result error: error];
+    if (_inMultiCommand) {
+        if (command == 7) {
+            _inMultiCommand = false;
+            [self enableStartButton: true];
+        }
+    } else {
+        [self enableStartButton: true];
+    }
     dispatch_async(dispatch_get_main_queue(), ^{
         [self pushCommands];
     });

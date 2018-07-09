@@ -16,7 +16,6 @@
 		7B26483320F376AD0055EB2C /* ScanViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B26482520F376AC0055EB2C /* ScanViewController.m */; };
 		7B26483420F376AD0055EB2C /* BleTableViewDeviceCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B26482620F376AC0055EB2C /* BleTableViewDeviceCell.m */; };
 		7B2C41F320E64F4A00AB0F5A /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B2C41F220E64F4A00AB0F5A /* AppDelegate.m */; };
-		7B2C41F620E64F4A00AB0F5A /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B2C41F520E64F4A00AB0F5A /* ViewController.m */; };
 		7B2C41F920E64F4A00AB0F5A /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 7B2C41F720E64F4A00AB0F5A /* Main.storyboard */; };
 		7B2C41FB20E64F4D00AB0F5A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7B2C41FA20E64F4D00AB0F5A /* Assets.xcassets */; };
 		7B2C41FE20E64F4D00AB0F5A /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 7B2C41FC20E64F4D00AB0F5A /* LaunchScreen.storyboard */; };
@@ -74,8 +73,6 @@
 		7B2C41EE20E64F4A00AB0F5A /* RfidActiveApiSensorTestappIosObjC.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RfidActiveApiSensorTestappIosObjC.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		7B2C41F120E64F4A00AB0F5A /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		7B2C41F220E64F4A00AB0F5A /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
-		7B2C41F420E64F4A00AB0F5A /* ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
-		7B2C41F520E64F4A00AB0F5A /* ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
 		7B2C41F820E64F4A00AB0F5A /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		7B2C41FA20E64F4D00AB0F5A /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		7B2C41FD20E64F4D00AB0F5A /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
@@ -133,8 +130,6 @@
 				7B26481B20F376AC0055EB2C /* EventsForwarder.h */,
 				7B2C41F120E64F4A00AB0F5A /* AppDelegate.h */,
 				7B2C41F220E64F4A00AB0F5A /* AppDelegate.m */,
-				7B2C41F420E64F4A00AB0F5A /* ViewController.h */,
-				7B2C41F520E64F4A00AB0F5A /* ViewController.m */,
 				7B2C41F720E64F4A00AB0F5A /* Main.storyboard */,
 				7B2C41FA20E64F4D00AB0F5A /* Assets.xcassets */,
 				7B2C41FC20E64F4D00AB0F5A /* LaunchScreen.storyboard */,
@@ -265,7 +260,6 @@
 			files = (
 				7B26483020F376AD0055EB2C /* DeviceDetailViewController.m in Sources */,
 				7B26483320F376AD0055EB2C /* ScanViewController.m in Sources */,
-				7B2C41F620E64F4A00AB0F5A /* ViewController.m in Sources */,
 				7B26482D20F376AD0055EB2C /* EventsForwarder.m in Sources */,
 				7B26483420F376AD0055EB2C /* BleTableViewDeviceCell.m in Sources */,
 				7B26482F20F376AD0055EB2C /* BleTableViewHeaderCell.m in Sources */,

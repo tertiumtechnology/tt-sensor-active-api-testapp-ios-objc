@@ -32,10 +32,9 @@ static EventsForwarder *_sharedInstance;
 {
     self = [super init];
     if (self) {
-        _api = [PassiveReader getInstance];
-        _api.readerListenerDelegate = self;
-        _api.inventoryListenerDelegate = self;
+        _api = [ActiveSensor getInstance];
         _api.responseListenerDelegate = self;
+        _api.sensorListenerDelegate = self;
     }
     
     return self;
@@ -50,151 +49,111 @@ static EventsForwarder *_sharedInstance;
     return _sharedInstance;
 }
 
-// AbstractResponseListenerProtocol implementation
--(void)writeIDevent: (NSData*_Nonnull) tagID error: (int) error
+// AbstractResponseListenerProtocol protocol
+-(void)calibrateSensorEvent: (int) sensorType error: (int) error
 {
-	if (_responseListenerDelegate)
-		[_responseListenerDelegate writeIDevent: tagID error: error];
+    [_responseListenerDelegate calibrateSensorEvent: sensorType error: error];
 }
 
--(void)writePasswordEvent: (NSData *_Nonnull) tagID error: (int) error
- {
-	if (_responseListenerDelegate)
-		[_responseListenerDelegate writePasswordEvent: tagID error: error];
-}
-
--(void)readTIDevent: (NSData *_Nonnull) tagID error: (int) error TID: (NSData *_Nullable) TID
+-(void)getCalibrationConfigurationEvent: (int) sensorType error: (int) error uncalibratedRawValue: (int) uncalibratedRawValue valueOffset: (int) valueOffset valueGain: (float) valueGain fullScale: (int) fullScale
 {
-	if (_responseListenerDelegate)
-		[_responseListenerDelegate readTIDevent: tagID error: error TID: TID];
+    [_responseListenerDelegate getCalibrationConfigurationEvent: sensorType error: error uncalibratedRawValue: uncalibratedRawValue valueOffset: valueOffset valueGain: valueGain fullScale: fullScale];
 }
 
--(void)readEvent: (NSData *_Nonnull) tagID error: (int) error data: (NSData *_Nullable) data
+-(void)getLogConfigurationEvent: (int) sensorType error: (int) error logEnable: (bool) logEnable logPeriod: (int) logPeriod
 {
-	if (_responseListenerDelegate)
-		[_responseListenerDelegate readEvent: tagID error: error data: data];
+    [_responseListenerDelegate getLogConfigurationEvent: sensorType error: error logEnable: logEnable logPeriod: logPeriod];
 }
 
--(void)writeEvent: (NSData *_Nonnull) tagID error: (int) error
+-(void)logSensorEvent: (int) sensorType error: (int) error
 {
-	if (_responseListenerDelegate)
-		[_responseListenerDelegate writeEvent: tagID error: error];
+    [_responseListenerDelegate logSensorEvent: sensorType error: error];
 }
 
--(void)lockEvent: (NSData *_Nonnull) tagID error: (int) error
+-(void)readLocalizationEvent: (int) error latitude: (float) latitude longitude: (float) longitude timestamp: (int) timestamp
 {
-	if (_responseListenerDelegate)
-		[_responseListenerDelegate lockEvent: tagID error: error];
+    [_responseListenerDelegate readLocalizationEvent: error latitude: latitude longitude: longitude timestamp: timestamp];
 }
 
--(void)killEvent: (NSData *_Nonnull) tagID error: (int) error
+-(void)readMagneticSealStatusEvent: (int) error status: (int) status
 {
-	if (_responseListenerDelegate)
-		[_responseListenerDelegate killEvent: tagID error: error];
+    [_responseListenerDelegate readMagneticSealStatusEvent: error status: status];
 }
 
-// AbstractInventoryListenerProtocol implementation
--(void)inventoryEvent: (Tag *_Nonnull) tag
+-(void)readOpticSealBackgroundEvent: (int) error backgroundLevel: (int) backgroundLevel
 {
-	if (_inventoryListenerDelegate)
-		[_inventoryListenerDelegate inventoryEvent: tag];
+    [_responseListenerDelegate readOpticSealBackgroundEvent: error backgroundLevel: backgroundLevel];
 }
 
-// AbstractReaderListenerProtocol implementation
+-(void)readOpticSealForegroundEvent: (int) error foregroundLevel: (int) foregroundLevel
+{
+    [_responseListenerDelegate readOpticSealForegroundEvent: error foregroundLevel: foregroundLevel];
+}
+
+-(void)readSealEvent: (int) error closed: (bool) closed status: (int) status
+{
+    [_responseListenerDelegate readSealEvent: error closed: closed status: status];
+}
+
+-(void)readSensorEvent: (int) sensorType error: (int) error sensorValue: (float) sensorValue timestamp: (int) timestamp
+{
+    [_responseListenerDelegate readSensorEvent: sensorType error: error sensorValue: sensorValue timestamp: timestamp];
+}
+
+-(void)setupSealEvent: (int) error
+{
+    [_responseListenerDelegate setupSealEvent: error];
+}
+
+// AbstractSensorListenerProtocol
+-(void)availabilityEvent: (bool) available
+{
+    [_sensorListenerDelegate availabilityEvent: available];
+}
+
 -(void)connectionFailureEvent: (int) error
 {
-	if (_readerListenerDelegate)
-		[_readerListenerDelegate connectionFailureEvent: error];
+    [_sensorListenerDelegate connectionFailureEvent: error];
 }
 
 -(void)connectionSuccessEvent
 {
-	if (_readerListenerDelegate)
-		[_readerListenerDelegate connectionSuccessEvent];
+    [_sensorListenerDelegate connectionSuccessEvent];
 }
 
--(void)disconnectionEvent
+-(void)disconnectionSuccessEvent
 {
-	if (_readerListenerDelegate)
-		[_readerListenerDelegate disconnectionEvent];
-}
-
--(void)availabilityEvent: (bool) available
-{
-	if (_readerListenerDelegate)
-		[_readerListenerDelegate availabilityEvent: available];
-}
-
--(void)resultEvent: (int) command error: (int) error 
-{
-	if (_readerListenerDelegate)
-		[_readerListenerDelegate resultEvent: command error: error];
-}
-
--(void)batteryStatusEvent: (int) status
-{
-	if (_readerListenerDelegate)
-		[_readerListenerDelegate batteryStatusEvent: status];
+    [_sensorListenerDelegate disconnectionSuccessEvent];
 }
 
 -(void)firmwareVersionEvent: (int) major minor: (int) minor
 {
-	if (_readerListenerDelegate)
-		[_readerListenerDelegate firmwareVersionEvent: major minor: minor];
+    [_sensorListenerDelegate firmwareVersionEvent: major minor: minor];
 }
 
--(void)shutdownTimeEvent: (int) time
+-(void)getClockEvent: (int) sensorTime systemTime: (int) systemTime
 {
-    if (_readerListenerDelegate)
-		[_readerListenerDelegate shutdownTimeEvent: time];
+    [_sensorListenerDelegate getClockEvent: sensorTime systemTime: systemTime];
 }
 
--(void)RFpowerEvent: (int) level mode: (int) mode
+-(void)getLoggedLocalizationDataEvent: (int) gpserror latitude: (float) latitude longitude: (float) longitude timestamp: (int) timestamp
 {
-	if (_readerListenerDelegate)
-		[_readerListenerDelegate RFpowerEvent: level mode: mode];
+    [_sensorListenerDelegate getLoggedLocalizationDataEvent: gpserror latitude: latitude longitude: longitude timestamp: timestamp];
 }
 
--(void)batteryLevelEvent: (float) level
+-(void)getLoggedMeasureDataEvent: (int) sensorType sensorValue: (float) sensorValue timestamp: (int) timestamp
 {
-	if (_readerListenerDelegate)
-		[_readerListenerDelegate batteryLevelEvent: level];
+    [_sensorListenerDelegate getLoggedMeasureDataEvent: sensorType sensorValue: sensorValue timestamp: timestamp];
 }
 
--(void)RFforISO15693tunnelEvent: (int) delay timeout: (int) timeout
+-(void)getLoggedSealDataEvent: (bool) closed status: (int) status timestamp: (int) timestamp
 {
-	if (_readerListenerDelegate)
-		[_readerListenerDelegate RFforISO15693tunnelEvent: delay timeout: timeout];
+    [_sensorListenerDelegate getLoggedSealDataEvent: closed status: status timestamp: timestamp];
 }
 
--(void)ISO15693optionBitsEvent: (int) option_bits
+-(void)resultEvent: (int) command error: (int) error
 {
-	if (_readerListenerDelegate)
-		[_readerListenerDelegate ISO15693optionBitsEvent: option_bits];
-}
-
--(void)ISO15693extensionFlagEvent: (bool) flag permanent: (bool) permanent
-{
-	if (_readerListenerDelegate)
-		[_readerListenerDelegate ISO15693extensionFlagEvent: flag permanent: permanent];
-}
-
--(void)ISO15693bitrateEvent: (int) bitrate permanent: (bool) permanent
-{
-	if (_readerListenerDelegate)
-		[_readerListenerDelegate ISO15693bitrateEvent: bitrate permanent: permanent];
-}
-
--(void)EPCfrequencyEvent: (int) frequency
-{
-	if (_readerListenerDelegate)
-		[_readerListenerDelegate EPCfrequencyEvent: frequency];
-}
-
--(void)tunnelEvent: (NSData *) data
-{
-	if (_readerListenerDelegate)
-		[_readerListenerDelegate tunnelEvent: data];
+    [_sensorListenerDelegate resultEvent: command error: error];
 }
 
 @end
