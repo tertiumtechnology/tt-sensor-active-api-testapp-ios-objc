@@ -23,8 +23,7 @@
  */
 
 #import <UIKit/UIKit.h>
-#import "PassiveAPI/Scanner.h"
-#import "PassiveAPI/AbstractScanListenerProtocol.h"
+#import <RfidActiveApiSensorLibObjC/RfidActiveApiSensorLibObjC.h>
 
 @interface ScanViewController : UIViewController<UITableViewDataSource, UITableViewDelegate, AbstractScanListenerProtocol>
 {

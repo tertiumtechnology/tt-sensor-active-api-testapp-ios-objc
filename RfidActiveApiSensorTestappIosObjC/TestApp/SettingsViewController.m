@@ -22,8 +22,8 @@
  * THE SOFTWARE.
  */
 
+#import <RfidActiveApiSensorLibObjC/RfidActiveApiSensorLibObjC.h>
 #import "SettingsViewController.h"
-#import "PassiveAPI/BleSettings.h"
 
 @interface SettingsViewController ()
 

@@ -9,6 +9,12 @@
 /* Begin PBXBuildFile section */
 		7B26481420F376120055EB2C /* RfidActiveApiSensorLibObjC.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B26481320F375FC0055EB2C /* RfidActiveApiSensorLibObjC.framework */; };
 		7B26481520F376120055EB2C /* RfidActiveApiSensorLibObjC.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 7B26481320F375FC0055EB2C /* RfidActiveApiSensorLibObjC.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		7B26482D20F376AD0055EB2C /* EventsForwarder.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B26481C20F376AC0055EB2C /* EventsForwarder.m */; };
+		7B26482E20F376AD0055EB2C /* SettingsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B26481E20F376AC0055EB2C /* SettingsViewController.m */; };
+		7B26482F20F376AD0055EB2C /* BleTableViewHeaderCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B26482020F376AC0055EB2C /* BleTableViewHeaderCell.m */; };
+		7B26483020F376AD0055EB2C /* DeviceDetailViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B26482220F376AC0055EB2C /* DeviceDetailViewController.m */; };
+		7B26483320F376AD0055EB2C /* ScanViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B26482520F376AC0055EB2C /* ScanViewController.m */; };
+		7B26483420F376AD0055EB2C /* BleTableViewDeviceCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B26482620F376AC0055EB2C /* BleTableViewDeviceCell.m */; };
 		7B2C41F320E64F4A00AB0F5A /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B2C41F220E64F4A00AB0F5A /* AppDelegate.m */; };
 		7B2C41F620E64F4A00AB0F5A /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 7B2C41F520E64F4A00AB0F5A /* ViewController.m */; };
 		7B2C41F920E64F4A00AB0F5A /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 7B2C41F720E64F4A00AB0F5A /* Main.storyboard */; };
@@ -53,6 +59,18 @@
 
 /* Begin PBXFileReference section */
 		7B26480D20F375FB0055EB2C /* RfidActiveApiSensorLibObjC.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RfidActiveApiSensorLibObjC.xcodeproj; path = "tt-sensor-active-api-lib-ios-objc/RfidActiveApiSensorLibObjC/RfidActiveApiSensorLibObjC.xcodeproj"; sourceTree = "<group>"; };
+		7B26481920F376AC0055EB2C /* ScanViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ScanViewController.h; path = TestApp/ScanViewController.h; sourceTree = "<group>"; };
+		7B26481A20F376AC0055EB2C /* DeviceDetailViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DeviceDetailViewController.h; path = TestApp/DeviceDetailViewController.h; sourceTree = "<group>"; };
+		7B26481B20F376AC0055EB2C /* EventsForwarder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EventsForwarder.h; sourceTree = "<group>"; };
+		7B26481C20F376AC0055EB2C /* EventsForwarder.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EventsForwarder.m; sourceTree = "<group>"; };
+		7B26481E20F376AC0055EB2C /* SettingsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SettingsViewController.m; path = TestApp/SettingsViewController.m; sourceTree = "<group>"; };
+		7B26481F20F376AC0055EB2C /* BleTableViewDeviceCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = BleTableViewDeviceCell.h; path = TestApp/BleTableViewDeviceCell.h; sourceTree = "<group>"; };
+		7B26482020F376AC0055EB2C /* BleTableViewHeaderCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = BleTableViewHeaderCell.m; path = TestApp/BleTableViewHeaderCell.m; sourceTree = "<group>"; };
+		7B26482120F376AC0055EB2C /* SettingsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SettingsViewController.h; path = TestApp/SettingsViewController.h; sourceTree = "<group>"; };
+		7B26482220F376AC0055EB2C /* DeviceDetailViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = DeviceDetailViewController.m; path = TestApp/DeviceDetailViewController.m; sourceTree = "<group>"; };
+		7B26482520F376AC0055EB2C /* ScanViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ScanViewController.m; path = TestApp/ScanViewController.m; sourceTree = "<group>"; };
+		7B26482620F376AC0055EB2C /* BleTableViewDeviceCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = BleTableViewDeviceCell.m; path = TestApp/BleTableViewDeviceCell.m; sourceTree = "<group>"; };
+		7B26482820F376AC0055EB2C /* BleTableViewHeaderCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = BleTableViewHeaderCell.h; path = TestApp/BleTableViewHeaderCell.h; sourceTree = "<group>"; };
 		7B2C41EE20E64F4A00AB0F5A /* RfidActiveApiSensorTestappIosObjC.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RfidActiveApiSensorTestappIosObjC.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		7B2C41F120E64F4A00AB0F5A /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		7B2C41F220E64F4A00AB0F5A /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -108,6 +126,11 @@
 		7B2C41F020E64F4A00AB0F5A /* RfidActiveApiSensorTestappIosObjC */ = {
 			isa = PBXGroup;
 			children = (
+				7BB4C6CF20F377C900E56752 /* Testing */,
+				7BB4C6CE20F377C400E56752 /* Scanning */,
+				7BB4C6CD20F377BF00E56752 /* Settings */,
+				7B26481C20F376AC0055EB2C /* EventsForwarder.m */,
+				7B26481B20F376AC0055EB2C /* EventsForwarder.h */,
 				7B2C41F120E64F4A00AB0F5A /* AppDelegate.h */,
 				7B2C41F220E64F4A00AB0F5A /* AppDelegate.m */,
 				7B2C41F420E64F4A00AB0F5A /* ViewController.h */,
@@ -119,6 +142,37 @@
 				7B2C420020E64F4D00AB0F5A /* main.m */,
 			);
 			path = RfidActiveApiSensorTestappIosObjC;
+			sourceTree = "<group>";
+		};
+		7BB4C6CD20F377BF00E56752 /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				7B26482120F376AC0055EB2C /* SettingsViewController.h */,
+				7B26481E20F376AC0055EB2C /* SettingsViewController.m */,
+			);
+			name = Settings;
+			sourceTree = "<group>";
+		};
+		7BB4C6CE20F377C400E56752 /* Scanning */ = {
+			isa = PBXGroup;
+			children = (
+				7B26482820F376AC0055EB2C /* BleTableViewHeaderCell.h */,
+				7B26482020F376AC0055EB2C /* BleTableViewHeaderCell.m */,
+				7B26482620F376AC0055EB2C /* BleTableViewDeviceCell.m */,
+				7B26481F20F376AC0055EB2C /* BleTableViewDeviceCell.h */,
+				7B26481920F376AC0055EB2C /* ScanViewController.h */,
+				7B26482520F376AC0055EB2C /* ScanViewController.m */,
+			);
+			name = Scanning;
+			sourceTree = "<group>";
+		};
+		7BB4C6CF20F377C900E56752 /* Testing */ = {
+			isa = PBXGroup;
+			children = (
+				7B26481A20F376AC0055EB2C /* DeviceDetailViewController.h */,
+				7B26482220F376AC0055EB2C /* DeviceDetailViewController.m */,
+			);
+			name = Testing;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -209,7 +263,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7B26483020F376AD0055EB2C /* DeviceDetailViewController.m in Sources */,
+				7B26483320F376AD0055EB2C /* ScanViewController.m in Sources */,
 				7B2C41F620E64F4A00AB0F5A /* ViewController.m in Sources */,
+				7B26482D20F376AD0055EB2C /* EventsForwarder.m in Sources */,
+				7B26483420F376AD0055EB2C /* BleTableViewDeviceCell.m in Sources */,
+				7B26482F20F376AD0055EB2C /* BleTableViewHeaderCell.m in Sources */,
+				7B26482E20F376AD0055EB2C /* SettingsViewController.m in Sources */,
 				7B2C420120E64F4D00AB0F5A /* main.m in Sources */,
 				7B2C41F320E64F4A00AB0F5A /* AppDelegate.m in Sources */,
 			);

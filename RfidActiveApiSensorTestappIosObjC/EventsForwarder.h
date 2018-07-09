@@ -22,15 +22,17 @@
  * THE SOFTWARE.
  */
 
-#import <UIKit/UIKit.h>
+#import <Foundation/Foundation.h>
+#import <RfidActiveApiSensorLibObjC/RfidActiveApiSensorLibObjC.h>
 
-@class ExtendedTagTestsViewController;
-@class PassiveReader;
+@interface EventsForwarder : NSObject<AbstractResponseListenerProtocol, AbstractSensorListenerProtocol>
+{
+    ActiveSensor *_api;
+}
 
-@interface ExtendedTagTestsReadVC : UIViewController
-@property (weak, nonatomic) IBOutlet UIButton *btnStartOperation;
-@property (weak, nonatomic) IBOutlet UITextField *txtAddress;
-@property (weak, nonatomic) IBOutlet UITextField *txtBlocks;
-@property (weak, nonatomic) ExtendedTagTestsViewController *mainVC;
-@property (weak, nonatomic) PassiveReader *api;
+@property (nonatomic, weak, nullable) NSObject<AbstractResponseListenerProtocol> *responseListenerDelegate;
+@property (nonatomic, weak, nullable) NSObject<AbstractSensorListenerProtocol> *sensorListenerDelegate;
+
++(EventsForwarder *_Nonnull) getInstance;
+
 @end

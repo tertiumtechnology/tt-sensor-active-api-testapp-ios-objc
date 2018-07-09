@@ -23,13 +23,8 @@
  */
 
 #import <UIKit/UIKit.h>
-#import "TxRxLib/TxRxDevice.h"
-#import "TxRxLib/TxRxManager.h"
-#import "TxRxLib/TxRxDeviceDataProtocol.h"
-#import "PassiveAPI/PassiveReader.h"
-#import "PassiveAPI/AbstractReaderListenerProtocol.h"
-#import "PassiveAPI/AbstractResponseListenerProtocol.h"
-#import "PassiveAPI/AbstractInventoryListenerProtocol.h"
+#import <TxRxLib/TxRxLib.h>
+#import <RfidActiveApiSensorLibObjC/RfidActiveApiSensorLibObjC.h>
 #import "EventsForwarder.h"
 
 @class Core;
