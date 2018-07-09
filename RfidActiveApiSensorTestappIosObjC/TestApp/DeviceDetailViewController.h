@@ -40,6 +40,7 @@ typedef enum CommandType: int {
 {
     ActiveSensor *_api;
     AbstractSensor *_activeSensor;
+    AbstractSensor *_commandSensor;
 	EventsForwarder *_eventsForwarder;
     NSTimer *_timer;
     UIFont *_font;
@@ -60,6 +61,7 @@ typedef enum CommandType: int {
     bool _connected;
     NSMutableArray *_sensors;
     int *_sensorTypeCodes;
+    int _activeSensorIndex;
     NSDictionary* sensorTypeStrings;
     NSString *_commandSensorTypeName;
 }

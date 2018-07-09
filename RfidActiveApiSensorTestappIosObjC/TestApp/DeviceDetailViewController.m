@@ -164,7 +164,12 @@ static NSString* const operations[] = {
         pickerLabel.textAlignment = NSTextAlignmentLeft;
     }
     
-    pickerLabel.text = operations[row];
+    if (pickerView == _pikSelectSensor) {
+        pickerLabel.text = _sensors[row];
+    } else {
+        pickerLabel.text = operations[row];
+    }
+    
     pickerLabel.textColor = [UIColor blackColor];
     return pickerLabel;
 }
@@ -176,17 +181,33 @@ static NSString* const operations[] = {
 
 -(NSString *) pickerView:(UIPickerView *)pickerView titleForRow:(NSInteger)row forComponent:(NSInteger)component
 {
-    return operations[row];
+    if (pickerView == _pikSelectSensor) {
+        return _sensors[row];
+    } else {
+        return operations[row];
+    }
 }
 
 - (NSInteger)pickerView:(nonnull UIPickerView *)pickerView numberOfRowsInComponent:(NSInteger)component
 {
-    return sizeof(operations)/sizeof(NSString *);
+    if (pickerView == _pikSelectSensor) {
+        return [_sensors count];
+    } else {
+        return sizeof(operations)/sizeof(NSString *);
+    }
 }
 
 -(void)pickerView:(UIPickerView *)pickerView didSelectRow:(NSInteger)row inComponent:(NSInteger)component
 {
-    _selectedRow = row;
+    if (pickerView == _pikSelectSensor) {
+        if (_sensorTypeCodes) {
+            _sensorTypeName = sensorTypeStrings[@(_sensorTypeCodes[row])];
+            _activeSensor = [_api getSensorByIndex: (int)row];
+            _activeSensorIndex = (int)row;
+        }
+    } else {
+        _selectedRow = row;
+    }
 }
 
 //
@@ -305,6 +326,8 @@ static NSString* const operations[] = {
         return;
     }
     
+    _commandSensor = _activeSensor;
+    _commandSensorTypeName = sensorTypeStrings[@(_sensorTypeCodes[_activeSensorIndex])];
     if (_customCommandsMap == nil) {
         _customCommandsMap = [NSMutableArray new];
         
@@ -692,7 +715,7 @@ static NSString* const operations[] = {
     [self pushCommands];
 }
 
--(void)disconnectionEvent
+-(void)disconnectionSuccessEvent
 {
     [self enableStartButton: false];
     _connected = false;
@@ -701,7 +724,6 @@ static NSString* const operations[] = {
     [_pikSelectSensor reloadAllComponents];
     _activeSensor = nil;
 }
-
 
 -(void)firmwareVersionEvent: (int) major minor: (int) minor
 {
@@ -783,7 +805,7 @@ static NSString* const operations[] = {
     } else {
         [self appendTextToBuffer: [NSString stringWithFormat: @"Calibration configuration sensor %@ error: %d", _commandSensorTypeName, error] color: [UIColor redColor]];
     }
-
+    
     [self enableStartButton: true];
 }
 
@@ -794,7 +816,7 @@ static NSString* const operations[] = {
     } else {
         [self appendTextToBuffer: [NSString stringWithFormat: @"Log configuration sensor %@ error: %d", _commandSensorTypeName, error] color: [UIColor redColor]];
     }
-
+    
     [self enableStartButton: true];
 }
 
@@ -827,7 +849,7 @@ static NSString* const operations[] = {
     } else {
         [self appendTextToBuffer: [NSString stringWithFormat: @"Magnetic seal status error: %d", error] color: [UIColor redColor]];
     }
-
+    
     [self enableStartButton: true];
 }
 
@@ -850,7 +872,7 @@ static NSString* const operations[] = {
     } else {
         [self appendTextToBuffer: [NSString stringWithFormat: @"Optical seal read foreground level error: %d", error] color: [UIColor redColor]];
     }
-
+    
     [self enableStartButton: true];
 }
 
@@ -876,7 +898,7 @@ static NSString* const operations[] = {
     } else {
         [self appendTextToBuffer: [NSString stringWithFormat: @"Read sensor %@ error: %d", _commandSensorTypeName, error] color: [UIColor redColor]];
     }
-
+    
     [self enableStartButton: true];
 }
 
@@ -908,7 +930,7 @@ static NSString* const operations[] = {
 {
     _eventsForwarder.sensorListenerDelegate = self;
     _eventsForwarder.responseListenerDelegate = self;
-
+    
     _inExtendedView = false;
     if (_connected) {
         [self enableStartButton: true];
