@@ -140,6 +140,7 @@ static NSString* const operations[] = {
         if (_connected == false) {
             [self reset];
             [_api connect: _deviceName];
+            [self appendTextToBuffer: @"Connecting...." color: [UIColor whiteColor]];
         } else {
             [_api disconnect];
         }
