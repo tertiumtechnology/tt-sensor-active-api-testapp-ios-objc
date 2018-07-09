@@ -298,6 +298,9 @@ static NSString* const operations[] = {
     if (!_initialCommandsMap) {
         _initialCommandsMap = [NSMutableArray new];
         [_initialCommandsMap addObject: ^(DeviceDetailViewController*vc) {
+            [vc enableStartButton: true];
+        }];
+        [_initialCommandsMap addObject: ^(DeviceDetailViewController*vc) {
             [vc appendTextToBuffer: @"getFirmwareVersion" color: [UIColor yellowColor]];
             [vc->_api getFirmwareVersion];
         }];
@@ -649,7 +652,7 @@ static NSString* const operations[] = {
 {
     NSString *fmtText;
     
-    fmtText = [NSString stringWithFormat: @"Available: %@ Battery status: %ld Level: %0.2f", (_deviceAvailable ? @"yes": @"No"), (long)_batteryStatus, _batteryLevel];
+    fmtText = [NSString stringWithFormat: @"Available: %@", (_deviceAvailable ? @"yes": @"No")];
     _lblBatteryStatus.text = fmtText;
 }
 
